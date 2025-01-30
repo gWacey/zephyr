@@ -26,6 +26,7 @@ struct btp_bap_broadcast_stream {
  */
 struct btp_bap_broadcast_remote_source {
 	bt_addr_le_t address;
+	uint8_t source_id;
 	uint32_t broadcast_id;
 	struct btp_bap_broadcast_stream streams[CONFIG_BT_BAP_BROADCAST_SNK_STREAM_COUNT];
 	struct bt_bap_stream *sink_streams[CONFIG_BT_BAP_BROADCAST_SNK_STREAM_COUNT];
@@ -41,6 +42,8 @@ struct btp_bap_broadcast_remote_source {
 };
 
 struct btp_bap_broadcast_local_source {
+	bool allocated;
+	uint8_t source_id;
 	uint32_t broadcast_id;
 	struct bt_bap_qos_cfg qos;
 	struct btp_bap_broadcast_stream streams[CONFIG_BT_BAP_BROADCAST_SRC_STREAM_COUNT];
@@ -54,48 +57,47 @@ struct btp_bap_broadcast_local_source {
 
 int btp_bap_broadcast_init(void);
 struct btp_bap_broadcast_local_source *btp_bap_broadcast_local_source_get(uint8_t source_id);
-struct btp_bap_broadcast_stream *btp_bap_broadcast_stream_alloc(
-	struct btp_bap_broadcast_local_source *source);
+struct btp_bap_broadcast_stream *
+btp_bap_broadcast_stream_alloc(struct btp_bap_broadcast_local_source *source);
 
-uint8_t btp_bap_broadcast_source_setup(const void *cmd, uint16_t cmd_len,
-				       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_source_release(const void *cmd, uint16_t cmd_len,
-					 void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_adv_start(const void *cmd, uint16_t cmd_len,
-				    void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_adv_stop(const void *cmd, uint16_t cmd_len,
-				   void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_source_start(const void *cmd, uint16_t cmd_len,
-				       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_source_stop(const void *cmd, uint16_t cmd_len,
-				      void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_sink_setup(const void *cmd, uint16_t cmd_len,
-				     void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_sink_release(const void *cmd, uint16_t cmd_len,
-				       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_scan_start(const void *cmd, uint16_t cmd_len,
-				     void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_scan_stop(const void *cmd, uint16_t cmd_len,
-				    void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_sink_sync(const void *cmd, uint16_t cmd_len,
-				    void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_sink_stop(const void *cmd, uint16_t cmd_len,
-				    void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_sink_bis_sync(const void *cmd, uint16_t cmd_len,
-					void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_discover_scan_delegators(const void *cmd, uint16_t cmd_len,
-						   void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_scan_start(const void *cmd, uint16_t cmd_len,
-					       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_scan_stop(const void *cmd, uint16_t cmd_len,
-					      void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_add_src(const void *cmd, uint16_t cmd_len,
-					    void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_remove_src(const void *cmd, uint16_t cmd_len,
-					       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_modify_src(const void *cmd, uint16_t cmd_len,
-					       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_set_broadcast_code(const void *cmd, uint16_t cmd_len,
-						       void *rsp, uint16_t *rsp_len);
-uint8_t btp_bap_broadcast_assistant_send_past(const void *cmd, uint16_t cmd_len,
-					      void *rsp, uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_source_setup(const void *cmd, uint16_t cmd_len, void *rsp,
+				       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_source_release(const void *cmd, uint16_t cmd_len, void *rsp,
+					 uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_adv_start(const void *cmd, uint16_t cmd_len, void *rsp,
+				    uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_adv_stop(const void *cmd, uint16_t cmd_len, void *rsp, uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_source_start(const void *cmd, uint16_t cmd_len, void *rsp,
+				       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_source_stop(const void *cmd, uint16_t cmd_len, void *rsp,
+				      uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_sink_setup(const void *cmd, uint16_t cmd_len, void *rsp,
+				     uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_sink_release(const void *cmd, uint16_t cmd_len, void *rsp,
+				       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_scan_start(const void *cmd, uint16_t cmd_len, void *rsp,
+				     uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_scan_stop(const void *cmd, uint16_t cmd_len, void *rsp,
+				    uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_sink_sync(const void *cmd, uint16_t cmd_len, void *rsp,
+				    uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_sink_stop(const void *cmd, uint16_t cmd_len, void *rsp,
+				    uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_sink_bis_sync(const void *cmd, uint16_t cmd_len, void *rsp,
+					uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_discover_scan_delegators(const void *cmd, uint16_t cmd_len, void *rsp,
+						   uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_scan_start(const void *cmd, uint16_t cmd_len, void *rsp,
+					       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_scan_stop(const void *cmd, uint16_t cmd_len, void *rsp,
+					      uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_add_src(const void *cmd, uint16_t cmd_len, void *rsp,
+					    uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_remove_src(const void *cmd, uint16_t cmd_len, void *rsp,
+					       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_modify_src(const void *cmd, uint16_t cmd_len, void *rsp,
+					       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_set_broadcast_code(const void *cmd, uint16_t cmd_len, void *rsp,
+						       uint16_t *rsp_len);
+uint8_t btp_bap_broadcast_assistant_send_past(const void *cmd, uint16_t cmd_len, void *rsp,
+					      uint16_t *rsp_len);

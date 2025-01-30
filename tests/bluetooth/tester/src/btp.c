@@ -52,11 +52,9 @@ static K_MUTEX_DEFINE(rsp_buf_mutex);
 
 static void tester_send_with_index(uint8_t service, uint8_t opcode, uint8_t index,
 				   const uint8_t *data, size_t len);
-static void tester_rsp_with_index(uint8_t service, uint8_t opcode, uint8_t index,
-				  uint8_t status);
+static void tester_rsp_with_index(uint8_t service, uint8_t opcode, uint8_t index, uint8_t status);
 
-void tester_register_command_handlers(uint8_t service,
-				      const struct btp_handler *handlers,
+void tester_register_command_handlers(uint8_t service, const struct btp_handler *handlers,
 				      size_t num)
 {
 	__ASSERT_NO_MSG(service <= BTP_SERVICE_ID_MAX);
@@ -68,8 +66,7 @@ void tester_register_command_handlers(uint8_t service,
 
 static const struct btp_handler *find_btp_handler(uint8_t service, uint8_t opcode)
 {
-	if ((service > BTP_SERVICE_ID_MAX) ||
-	    (service_handler[service].handlers == NULL)) {
+	if ((service > BTP_SERVICE_ID_MAX) || (service_handler[service].handlers == NULL)) {
 		return NULL;
 	}
 
@@ -94,10 +91,11 @@ static void cmd_handler(void *p1, void *p2, void *p3)
 		cmd = k_fifo_get(&cmds_queue, K_FOREVER);
 		hdr = (struct btp_hdr *)cmd->data;
 
-		LOG_DBG("cmd service 0x%02x opcode 0x%02x index 0x%02x",
-			hdr->service, hdr->opcode, hdr->index);
+		LOG_DBG("cmd service 0x%02x opcode 0x%02x index 0x%02x", hdr->service, hdr->opcode,
+			hdr->index);
 
 		btp = find_btp_handler(hdr->service, hdr->opcode);
+		LOG_DBG("### btp %p ###", btp);
 		if (btp) {
 			uint16_t len = sys_le16_to_cpu(hdr->len);
 
@@ -108,8 +106,11 @@ static void cmd_handler(void *p1, void *p2, void *p3)
 			} else if ((btp->expect_len >= 0) && (btp->expect_len != len)) {
 				status = BTP_STATUS_FAILED;
 			} else {
-				status = btp->func(hdr->data, len,
-						   cmd->rsp, &rsp_len);
+				LOG_DBG("##### HERE 1.0 #####");
+
+				status = btp->func(hdr->data, len, cmd->rsp, &rsp_len);
+
+				LOG_DBG("##### HERE 1.1 #####");
 			}
 
 			/* This means that caller likely overwrote rsp buffer */
@@ -128,21 +129,24 @@ static void cmd_handler(void *p1, void *p2, void *p3)
 		}
 
 		if ((status == BTP_STATUS_SUCCESS) && rsp_len > 0) {
-			tester_send_with_index(hdr->service, hdr->opcode,
-					       hdr->index, cmd->rsp, rsp_len);
+			tester_send_with_index(hdr->service, hdr->opcode, hdr->index, cmd->rsp,
+					       rsp_len);
 		} else {
-			tester_rsp_with_index(hdr->service, hdr->opcode,
-					      hdr->index, status);
+			tester_rsp_with_index(hdr->service, hdr->opcode, hdr->index, status);
 		}
+
+		LOG_DBG("##### HERE 1.2 #####");
 
 		(void)memset(cmd, 0, sizeof(*cmd));
 		k_fifo_put(&avail_queue, cmd);
+
+		LOG_DBG("##### HERE 1.3 #####");
 	}
 }
 
 static uint8_t *recv_cb(uint8_t *buf, size_t *off)
 {
-	struct btp_hdr *cmd = (void *) buf;
+	struct btp_hdr *cmd = (void *)buf;
 	struct btp_buf *new_buf;
 	uint16_t len;
 
@@ -161,7 +165,7 @@ static uint8_t *recv_cb(uint8_t *buf, size_t *off)
 		return buf;
 	}
 
-	new_buf =  k_fifo_get(&avail_queue, K_NO_WAIT);
+	new_buf = k_fifo_get(&avail_queue, K_NO_WAIT);
 	if (!new_buf) {
 		LOG_ERR("BT tester: RX overflow");
 		*off = 0;
@@ -185,11 +189,10 @@ static void uart_send(const uint8_t *data, size_t len)
 {
 	uart_pipe_send(data, len);
 }
-#else /* !CONFIG_UART_PIPE */
+#else  /* !CONFIG_UART_PIPE */
 static uint8_t *recv_buf;
 static size_t recv_off;
-static const struct device *const dev =
-	DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+static const struct device *const dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
 
 static void timer_expiry_cb(struct k_timer *timer)
 {
@@ -234,8 +237,8 @@ void tester_init(void)
 		k_fifo_put(&avail_queue, &cmd_buf[i]);
 	}
 
-	k_thread_create(&cmd_thread, stack, STACKSIZE, cmd_handler,
-			NULL, NULL, NULL, K_PRIO_COOP(7), 0, K_NO_WAIT);
+	k_thread_create(&cmd_thread, stack, STACKSIZE, cmd_handler, NULL, NULL, NULL,
+			K_PRIO_COOP(7), 0, K_NO_WAIT);
 
 	buf = k_fifo_get(&avail_queue, K_NO_WAIT);
 
@@ -244,8 +247,7 @@ void tester_init(void)
 	/* core service is always available */
 	tester_init_core();
 
-	tester_send_with_index(BTP_SERVICE_ID_CORE, BTP_CORE_EV_IUT_READY,
-			      BTP_INDEX_NONE, NULL, 0);
+	tester_send_with_index(BTP_SERVICE_ID_CORE, BTP_CORE_EV_IUT_READY, BTP_INDEX_NONE, NULL, 0);
 }
 
 int tester_rsp_buffer_lock(void)
@@ -292,8 +294,7 @@ static void tester_send_with_index(uint8_t service, uint8_t opcode, uint8_t inde
 	}
 }
 
-static void tester_rsp_with_index(uint8_t service, uint8_t opcode, uint8_t index,
-				  uint8_t status)
+static void tester_rsp_with_index(uint8_t service, uint8_t opcode, uint8_t index, uint8_t status)
 {
 	struct btp_status s;
 
@@ -306,7 +307,7 @@ static void tester_rsp_with_index(uint8_t service, uint8_t opcode, uint8_t index
 	}
 
 	s.code = status;
-	tester_send_with_index(service, BTP_STATUS, index, (uint8_t *) &s, sizeof(s));
+	tester_send_with_index(service, BTP_STATUS, index, (uint8_t *)&s, sizeof(s));
 }
 
 void tester_event(uint8_t service, uint8_t opcode, const void *data, size_t len)

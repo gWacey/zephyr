@@ -27,22 +27,24 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME, CONFIG_BTTESTER_LOG_LEVEL);
 #include "btp_bap_unicast.h"
 #include "btp_bap_broadcast.h"
 
-#define SUPPORTED_SINK_CONTEXT	BT_AUDIO_CONTEXT_TYPE_ANY
+#define SUPPORTED_SINK_CONTEXT   BT_AUDIO_CONTEXT_TYPE_ANY
 #define SUPPORTED_SOURCE_CONTEXT BT_AUDIO_CONTEXT_TYPE_ANY
 
-#define AVAILABLE_SINK_CONTEXT SUPPORTED_SINK_CONTEXT
+#define AVAILABLE_SINK_CONTEXT   SUPPORTED_SINK_CONTEXT
 #define AVAILABLE_SOURCE_CONTEXT SUPPORTED_SOURCE_CONTEXT
 
 static const struct bt_audio_codec_cap default_codec_cap = BT_AUDIO_CODEC_CAP_LC3(
-	BT_AUDIO_CODEC_CAP_FREQ_ANY, BT_AUDIO_CODEC_CAP_DURATION_7_5 |
-	BT_AUDIO_CODEC_CAP_DURATION_10, BT_AUDIO_CODEC_CAP_CHAN_COUNT_SUPPORT(1, 2), 26u, 155u, 1u,
-	BT_AUDIO_CONTEXT_TYPE_ANY);
-
-static const struct bt_audio_codec_cap vendor_codec_cap = BT_AUDIO_CODEC_CAP(
-	0xff, 0xffff, 0xffff, BT_AUDIO_CODEC_CAP_LC3_DATA(BT_AUDIO_CODEC_CAP_FREQ_ANY,
+	BT_AUDIO_CODEC_CAP_FREQ_ANY,
 	BT_AUDIO_CODEC_CAP_DURATION_7_5 | BT_AUDIO_CODEC_CAP_DURATION_10,
-	BT_AUDIO_CODEC_CAP_CHAN_COUNT_SUPPORT(1, 2), 26u, 155, 1u),
-	BT_AUDIO_CODEC_CAP_LC3_META(BT_AUDIO_CONTEXT_TYPE_ANY));
+	BT_AUDIO_CODEC_CAP_CHAN_COUNT_SUPPORT(1, 2), 26u, 155u, 1u, BT_AUDIO_CONTEXT_TYPE_ANY);
+
+static const struct bt_audio_codec_cap vendor_codec_cap =
+	BT_AUDIO_CODEC_CAP(0xff, 0xffff, 0xffff,
+			   BT_AUDIO_CODEC_CAP_LC3_DATA(
+				   BT_AUDIO_CODEC_CAP_FREQ_ANY,
+				   BT_AUDIO_CODEC_CAP_DURATION_7_5 | BT_AUDIO_CODEC_CAP_DURATION_10,
+				   BT_AUDIO_CODEC_CAP_CHAN_COUNT_SUPPORT(1, 2), 26u, 155, 1u),
+			   BT_AUDIO_CODEC_CAP_LC3_META(BT_AUDIO_CONTEXT_TYPE_ANY));
 
 static struct bt_pacs_cap cap_sink = {
 	.codec_cap = &default_codec_cap,
@@ -60,8 +62,8 @@ static struct bt_pacs_cap vendor_cap_source = {
 	.codec_cap = &vendor_codec_cap,
 };
 
-static uint8_t btp_ascs_supported_commands(const void *cmd, uint16_t cmd_len,
-				       void *rsp, uint16_t *rsp_len)
+static uint8_t btp_ascs_supported_commands(const void *cmd, uint16_t cmd_len, void *rsp,
+					   uint16_t *rsp_len)
 {
 	struct btp_ascs_read_supported_commands_rp *rp = rsp;
 
@@ -137,15 +139,13 @@ static int set_location(void)
 	int err;
 
 	err = bt_pacs_set_location(BT_AUDIO_DIR_SINK,
-				   BT_AUDIO_LOCATION_FRONT_CENTER |
-				   BT_AUDIO_LOCATION_FRONT_RIGHT);
+				   BT_AUDIO_LOCATION_FRONT_CENTER | BT_AUDIO_LOCATION_FRONT_RIGHT);
 	if (err != 0) {
 		return err;
 	}
 
 	err = bt_pacs_set_location(BT_AUDIO_DIR_SOURCE,
-				   (BT_AUDIO_LOCATION_FRONT_LEFT |
-				    BT_AUDIO_LOCATION_FRONT_RIGHT));
+				   (BT_AUDIO_LOCATION_FRONT_LEFT | BT_AUDIO_LOCATION_FRONT_RIGHT));
 	if (err != 0) {
 		return err;
 	}
@@ -157,14 +157,12 @@ static int set_available_contexts(void)
 {
 	int err;
 
-	err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SOURCE,
-					     AVAILABLE_SOURCE_CONTEXT);
+	err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SOURCE, AVAILABLE_SOURCE_CONTEXT);
 	if (err != 0) {
 		return err;
 	}
 
-	err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SINK,
-					     AVAILABLE_SINK_CONTEXT);
+	err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SINK, AVAILABLE_SINK_CONTEXT);
 	if (err != 0) {
 		return err;
 	}
@@ -176,14 +174,12 @@ static int set_supported_contexts(void)
 {
 	int err;
 
-	err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SOURCE,
-					     SUPPORTED_SOURCE_CONTEXT);
+	err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SOURCE, SUPPORTED_SOURCE_CONTEXT);
 	if (err != 0) {
 		return err;
 	}
 
-	err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SINK,
-					     SUPPORTED_SINK_CONTEXT);
+	err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SINK, SUPPORTED_SINK_CONTEXT);
 	if (err != 0) {
 		return err;
 	}
@@ -191,8 +187,8 @@ static int set_supported_contexts(void)
 	return 0;
 }
 
-static uint8_t pacs_supported_commands(const void *cmd, uint16_t cmd_len,
-				       void *rsp, uint16_t *rsp_len)
+static uint8_t pacs_supported_commands(const void *cmd, uint16_t cmd_len, void *rsp,
+				       uint16_t *rsp_len)
 {
 	struct btp_pacs_read_supported_commands_rp *rp = rsp;
 
@@ -208,40 +204,37 @@ static uint8_t pacs_supported_commands(const void *cmd, uint16_t cmd_len,
 	return BTP_STATUS_SUCCESS;
 }
 
-static uint8_t pacs_update_characteristic(const void *cmd, uint16_t cmd_len,
-					  void *rsp, uint16_t *rsp_len)
+static uint8_t pacs_update_characteristic(const void *cmd, uint16_t cmd_len, void *rsp,
+					  uint16_t *rsp_len)
 {
 	const struct btp_pacs_update_characteristic_cmd *cp = cmd;
 	int err;
 
 	switch (cp->characteristic) {
 	case BTP_PACS_CHARACTERISTIC_SINK_PAC:
-		err = bt_pacs_cap_unregister(BT_AUDIO_DIR_SINK,
-					     &cap_sink);
+		err = bt_pacs_cap_unregister(BT_AUDIO_DIR_SINK, &cap_sink);
 		break;
 	case BTP_PACS_CHARACTERISTIC_SOURCE_PAC:
-		err = bt_pacs_cap_unregister(BT_AUDIO_DIR_SOURCE,
-					     &cap_source);
+		err = bt_pacs_cap_unregister(BT_AUDIO_DIR_SOURCE, &cap_source);
 		break;
 	case BTP_PACS_CHARACTERISTIC_SINK_AUDIO_LOCATIONS:
 		err = bt_pacs_set_location(BT_AUDIO_DIR_SINK,
 					   BT_AUDIO_LOCATION_FRONT_CENTER |
-					   BT_AUDIO_LOCATION_BACK_CENTER);
+						   BT_AUDIO_LOCATION_BACK_CENTER);
 		break;
 	case BTP_PACS_CHARACTERISTIC_SOURCE_AUDIO_LOCATIONS:
-		err = bt_pacs_set_location(BT_AUDIO_DIR_SOURCE,
-					   (BT_AUDIO_LOCATION_FRONT_LEFT |
-					    BT_AUDIO_LOCATION_FRONT_RIGHT |
-					    BT_AUDIO_LOCATION_FRONT_CENTER));
+		err = bt_pacs_set_location(BT_AUDIO_DIR_SOURCE, (BT_AUDIO_LOCATION_FRONT_LEFT |
+								 BT_AUDIO_LOCATION_FRONT_RIGHT |
+								 BT_AUDIO_LOCATION_FRONT_CENTER));
 		break;
 	case BTP_PACS_CHARACTERISTIC_AVAILABLE_AUDIO_CONTEXTS:
 		err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SOURCE,
-				BT_AUDIO_CONTEXT_TYPE_UNSPECIFIED);
+						     BT_AUDIO_CONTEXT_TYPE_UNSPECIFIED);
 		break;
 	case BTP_PACS_CHARACTERISTIC_SUPPORTED_AUDIO_CONTEXTS:
 		err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SOURCE,
-				SUPPORTED_SOURCE_CONTEXT |
-				BT_AUDIO_CONTEXT_TYPE_INSTRUCTIONAL);
+						     SUPPORTED_SOURCE_CONTEXT |
+							     BT_AUDIO_CONTEXT_TYPE_INSTRUCTIONAL);
 		break;
 	default:
 		return BTP_STATUS_FAILED;
@@ -250,8 +243,7 @@ static uint8_t pacs_update_characteristic(const void *cmd, uint16_t cmd_len,
 	return BTP_STATUS_VAL(err);
 }
 
-static uint8_t pacs_set_location(const void *cmd, uint16_t cmd_len,
-				 void *rsp, uint16_t *rsp_len)
+static uint8_t pacs_set_location(const void *cmd, uint16_t cmd_len, void *rsp, uint16_t *rsp_len)
 {
 	const struct btp_pacs_set_location_cmd *cp = cmd;
 	int err;
@@ -262,8 +254,8 @@ static uint8_t pacs_set_location(const void *cmd, uint16_t cmd_len,
 	return (err) ? BTP_STATUS_FAILED : BTP_STATUS_SUCCESS;
 }
 
-static uint8_t pacs_set_available_contexts(const void *cmd, uint16_t cmd_len,
-					   void *rsp, uint16_t *rsp_len)
+static uint8_t pacs_set_available_contexts(const void *cmd, uint16_t cmd_len, void *rsp,
+					   uint16_t *rsp_len)
 {
 	const struct btp_pacs_set_available_contexts_cmd *cp = cmd;
 	int err;
@@ -279,8 +271,8 @@ static uint8_t pacs_set_available_contexts(const void *cmd, uint16_t cmd_len,
 	return (err) ? BTP_STATUS_FAILED : BTP_STATUS_SUCCESS;
 }
 
-static uint8_t pacs_set_supported_contexts(const void *cmd, uint16_t cmd_len,
-					   void *rsp, uint16_t *rsp_len)
+static uint8_t pacs_set_supported_contexts(const void *cmd, uint16_t cmd_len, void *rsp,
+					   uint16_t *rsp_len)
 {
 	const struct btp_pacs_set_supported_contexts_cmd *cp = cmd;
 	int err;
@@ -308,25 +300,18 @@ static const struct btp_handler pacs_handlers[] = {
 		.expect_len = sizeof(struct btp_pacs_update_characteristic_cmd),
 		.func = pacs_update_characteristic,
 	},
-	{
-		.opcode = BTP_PACS_SET_LOCATION,
-		.expect_len = sizeof(struct btp_pacs_set_location_cmd),
-		.func = pacs_set_location
-	},
-	{
-		.opcode = BTP_PACS_SET_AVAILABLE_CONTEXTS,
-		.expect_len = sizeof(struct btp_pacs_set_available_contexts_cmd),
-		.func = pacs_set_available_contexts
-	},
-	{
-		.opcode = BTP_PACS_SET_SUPPORTED_CONTEXTS,
-		.expect_len = sizeof(struct btp_pacs_set_supported_contexts_cmd),
-		.func = pacs_set_supported_contexts
-	}
-};
+	{.opcode = BTP_PACS_SET_LOCATION,
+	 .expect_len = sizeof(struct btp_pacs_set_location_cmd),
+	 .func = pacs_set_location},
+	{.opcode = BTP_PACS_SET_AVAILABLE_CONTEXTS,
+	 .expect_len = sizeof(struct btp_pacs_set_available_contexts_cmd),
+	 .func = pacs_set_available_contexts},
+	{.opcode = BTP_PACS_SET_SUPPORTED_CONTEXTS,
+	 .expect_len = sizeof(struct btp_pacs_set_supported_contexts_cmd),
+	 .func = pacs_set_supported_contexts}};
 
-static uint8_t btp_bap_supported_commands(const void *cmd, uint16_t cmd_len,
-					  void *rsp, uint16_t *rsp_len)
+static uint8_t btp_bap_supported_commands(const void *cmd, uint16_t cmd_len, void *rsp,
+					  uint16_t *rsp_len)
 {
 	struct btp_bap_read_supported_commands_rp *rp = rsp;
 
@@ -369,7 +354,7 @@ static const struct btp_handler bap_handlers[] = {
 		.expect_len = BTP_HANDLER_LENGTH_VARIABLE,
 		.func = btp_bap_audio_stream_send,
 	},
-#if defined(CONFIG_BT_BAP_BROADCAST_SINK) || defined(CONFIG_BT_BAP_BROADCAST_SINK)
+#if defined(CONFIG_BT_BAP_BROADCAST_SOURCE) || defined(CONFIG_BT_BAP_BROADCAST_SINK)
 	{
 		.opcode = BTP_BAP_BROADCAST_SOURCE_SETUP,
 		.expect_len = BTP_HANDLER_LENGTH_VARIABLE,
@@ -475,7 +460,7 @@ static const struct btp_handler bap_handlers[] = {
 		.expect_len = sizeof(struct btp_bap_send_past_cmd),
 		.func = btp_bap_broadcast_assistant_send_past,
 	},
-#endif /* CONFIG_BT_BAP_BROADCAST_SINK || CONFIG_BT_BAP_BROADCAST_SINK */
+#endif /* CONFIG_BT_BAP_BROADCAST_SOURCE || CONFIG_BT_BAP_BROADCAST_SINK */
 };
 
 uint8_t tester_init_pacs(void)
