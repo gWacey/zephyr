@@ -1,0 +1,12 @@
+tests:
+  drivers.audio.tac5112:
+    sysbuild: true
+    platform_allow:
+#      - native_sim
+      - qemu_cortex_m3
+    integration_platforms:
+#      - native_sim
+      - qemu_cortex_m3
+    tags:
+      - drivers
+      - audio

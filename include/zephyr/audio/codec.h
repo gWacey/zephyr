@@ -181,6 +181,7 @@ struct audio_codec_cfg {
 struct audio_codec_eq_cfg {
 	uint32_t band; /**< EQ band center frequency in Hz, must match a supported codec EQ band. */
 	int32_t gain;  /**< EQ band gain in dB, codec-specific range. */
+	int32_t eq_gain; /**< EQ gain (codec-specific)) */
 };
 
 /**
@@ -327,9 +328,11 @@ typedef int (*audio_codec_write_t)(const struct device *dev, uint8_t *data, size
  * @brief Callback API to register audio codec DMA completion callbacks.
  * See audio_codec_register_done_callback() for argument descriptions.
  */
-typedef int (*audio_codec_register_done_callback_t)(
-	const struct device *dev, audio_codec_tx_done_callback_t tx_cb, void *tx_cb_user_data,
-	audio_codec_rx_done_callback_t rx_cb, void *rx_cb_user_data);
+typedef int (*audio_codec_register_done_callback_t)(const struct device *dev,
+						    audio_codec_tx_done_callback_t tx_cb,
+						    void *tx_cb_user_data,
+						    audio_codec_rx_done_callback_t rx_cb,
+						    void *rx_cb_user_data);
 
 /**
  * Legacy struct tag alias for @ref audio_codec_driver_api for audio codec drivers that have not
